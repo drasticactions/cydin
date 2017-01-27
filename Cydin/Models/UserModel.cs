@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,7 @@ using System.Web.Mvc;
 using OAuth2;
 
 #if CYDIN_ON_SQLITE
-using MySqlConnection = Mono.Data.Sqlite.SqliteConnection;
+using SqlConnection = Mono.Data.Sqlite.SqliteConnection;
 #else
 using MySql.Data.MySqlClient;
 #endif
@@ -26,7 +27,7 @@ namespace Cydin.Models
 	public class UserModel: IDisposable
 	{
 		User user;
-		MySqlConnection db;
+		SqlConnection db;
 		HashSet<int> ownedProjects;
 		Application application;
 		bool isAdmin;
@@ -803,7 +804,7 @@ namespace Cydin.Models
 
 		public IEnumerable<Release> GetRecentReleases ()
 		{
-			return db.SelectObjects<Release> ("SELECT `Release`.* FROM `Release`, Project WHERE `Release`.ProjectId = Project.Id AND Project.ApplicationId = {0} AND `Release`.Status = {1} AND `Release`.DevStatus != {2} ORDER BY LastChangeTime DESC", application.Id, ReleaseStatus.Published, DevStatus.Test).Take (10);
+			return db.SelectObjects<Release> ("SELECT Release.* FROM Release, Project WHERE Release.ProjectId = Project.Id AND Project.ApplicationId = {0} AND Release.Status = {1} AND Release.DevStatus != {2} ORDER BY LastChangeTime DESC", application.Id, ReleaseStatus.Published, DevStatus.Test).Take (10);
 		}
 
 		internal void UpdateProjectFlags (int id, ProjectFlag flags)
@@ -1178,12 +1179,12 @@ namespace Cydin.Models
 	
 	public class DataConnection
 	{
-		public static MySqlConnection GetConnection ()
+		public static SqlConnection GetConnection ()
 		{
-			MySqlConnection db = null;
+          SqlConnection db = null;
 			try {
 				string conn_string = WebConfigurationManager.ConnectionStrings["CommunityAddinRepoConnectionString"].ConnectionString;
-				db = new MySqlConnection (conn_string);
+				db = new SqlConnection (conn_string);
 				db.Open ();
 				return db;
 			} catch (Exception ex) {

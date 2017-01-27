@@ -1,4 +1,4 @@
-// 
+﻿// 
 // StatsModel.cs
 //  
 // Author:
@@ -27,6 +27,7 @@ using System;
 using MySql.Data.MySqlClient;
 using System.Data.Common;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Text;
 using System.Linq;
 
@@ -35,9 +36,9 @@ namespace Cydin.Models
 	public class StatsModel
 	{
 		UserModel userModel;
-		MySqlConnection db;
+		SqlConnection db;
 		
-		internal StatsModel (UserModel um, MySqlConnection db)
+		internal StatsModel (UserModel um, SqlConnection db)
 		{
 			userModel = um;
 			this.db = db;
@@ -162,7 +163,7 @@ namespace Cydin.Models
 		public List<DownloadInfo> GetTopDownloads (DateTime startDate, DateTime endDate)
 		{
 			string sql = "SELECT sum(Downloads), RP.Platform, RE.* " +
-			 	"FROM ReleasePackage RP, `Release` RE, Project P " +
+			 	"FROM ReleasePackage RP, Release RE, Project P " +
 			 	"WHERE RP.Date >= {0} AND RP.Date < {1} AND RP.ReleaseId = RE.Id AND RE.ProjectId = P.Id AND P.ApplicationId = {2} " +
 			 	"GROUP BY RP.Platform, RP.ReleaseId " +
 			 	"ORDER BY sum(Downloads) DESC";
@@ -237,7 +238,7 @@ namespace Cydin.Models
 			StringBuilder sb = new StringBuilder ();
 			sb.Append ("Release,Platform,Date,Addin,Version,DevStatus,Project,Downloads\n");
 			
-			string sql = "SELECT R.TargetAppVersion, R.Platform, R.Date, E.AddinId, E.Version, E.DevStatus, P.Name, R.Downloads FROM ReleasePackage R, `Release` E, Project P where P.ApplicationId={0} AND R.ReleaseId = E.Id AND E.ProjectId = P.Id";
+			string sql = "SELECT R.TargetAppVersion, R.Platform, R.Date, E.AddinId, E.Version, E.DevStatus, P.Name, R.Downloads FROM ReleasePackage R, Release E, Project P where P.ApplicationId={0} AND R.ReleaseId = E.Id AND E.ProjectId = P.Id";
 			using (DbDataReader r = db.ExecuteSelect (sql, userModel.CurrentApplication.Id)) {
 				while (r.Read ()) {
 					sb.Append (r.GetString (0)).Append (',');

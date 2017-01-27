@@ -1,4 +1,4 @@
-// 
+﻿// 
 // ServiceModel.cs
 //  
 // Author:
@@ -26,13 +26,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Web.Configuration;
 using System.Text;
 using Cydin.Builder;
 using Cydin.Properties;
 using System.IO;
 #if CYDIN_ON_SQLITE
-using MySqlConnection = Mono.Data.Sqlite.SqliteConnection;
+using SqlConnection = Mono.Data.Sqlite.SqliteConnection;
 #else
 using MySql.Data.MySqlClient;
 #endif
@@ -41,7 +42,7 @@ namespace Cydin.Models
 {
 	public class ServiceModel: IDisposable
 	{
-		protected MySqlConnection db;
+		protected SqlConnection db;
 		string version;
 		
 		public static ServiceModel GetCurrent ()
