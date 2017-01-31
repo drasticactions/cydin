@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Reflection;
 using System.Text;
+using System.Data.SqlClient;
 #if CYDIN_ON_SQLITE
 using SqlConnection = Mono.Data.Sqlite.SqliteConnection;
 using SqlCommand = Mono.Data.Sqlite.SqliteCommand;
 #else
-using MySql.Data.MySqlClient;
 #endif
 
 namespace Cydin.Models
@@ -37,8 +36,8 @@ namespace Cydin.Models
 			SqlConnection db = (SqlConnection)gdb;
 			using (SqlCommand cmd = db.CreateCommand ()) {
 				DbMap map = GetMap (obj.GetType ());
-				StringBuilder sql = new StringBuilder ("INSERT INTO ");
-				sql.Append (map.Table).Append (" (");
+				StringBuilder sql = new StringBuilder ("INSERT INTO [");
+				sql.Append (map.Table).Append ("] (");
 				foreach (string f in map.Keys) {
 					if (f != map.IdentityField)
 						sql.Append (f).Append (',');
@@ -79,8 +78,8 @@ namespace Cydin.Models
 			SqlConnection db = (SqlConnection)gdb;
 			using (SqlCommand cmd = db.CreateCommand ()) {
 				DbMap map = GetMap (obj.GetType ());
-				StringBuilder sql = new StringBuilder ("UPDATE ");
-				sql.Append (map.Table).Append (" SET ");
+				StringBuilder sql = new StringBuilder ("UPDATE [");
+				sql.Append (map.Table).Append ("] SET ");
 
 				foreach (var f in map) {
 					if (f.Key == map.IdentityField)
@@ -107,8 +106,8 @@ namespace Cydin.Models
 			SqlConnection db = (SqlConnection)gdb;
 			using (SqlCommand cmd = db.CreateCommand ()) {
 				DbMap map = GetMap (obj.GetType ());
-				StringBuilder sql = new StringBuilder ("DELETE FROM ");
-				sql.Append (map.Table).Append (" WHERE ");
+				StringBuilder sql = new StringBuilder ("DELETE FROM [");
+				sql.Append (map.Table).Append ("] WHERE ");
 				AppendObjectFilter (map, cmd, obj, sql);
 				Console.WriteLine (sql);
 				cmd.CommandText = sql.ToString ();
@@ -149,17 +148,17 @@ namespace Cydin.Models
 				DbMap map = GetMap (typeof (T));
 				if (sql == "*") {
 					// Select all
-					sql = "SELECT * FROM " + map.Table + "";
+					sql = "SELECT * FROM [" + map.Table + "]";
 				}
 				else if (sql.StartsWith ("*")) {
 					// Select with a where
-					sql = "SELECT * FROM " + map.Table + " WHERE " + sql.Substring (1);
+					sql = "SELECT * FROM [" + map.Table + "] WHERE " + sql.Substring (1);
 				}
 				else if (sql == ".") {
 					// Select by id
 					if (map.KeyFields.Length != 1)
 						throw new NotSupportedException ();
-					sql = "SELECT * FROM " + map.Table + " WHERE " + map.KeyFields[0] + " = {0}";
+					sql = "SELECT * FROM [" + map.Table + "] WHERE " + map.KeyFields[0] + " = {0}";
 				}
 				GenerateSqlCommand (cmd, sql, args);
 
@@ -179,7 +178,7 @@ namespace Cydin.Models
 			Dictionary<string, PropertyInfo> readProps = new Dictionary<string, PropertyInfo> (map);
 			
 			using (SqlCommand cmd = db.CreateCommand ()) {
-				cmd.CommandText = "SELECT * FROM " + map.Table + "";
+				cmd.CommandText = "SELECT * FROM [" + map.Table + "]";
 				using (DbDataReader dr = cmd.ExecuteReader ()) {
 					while (dr.Read ()) {
 						string fname = (string) dr["Key"];
@@ -221,14 +220,14 @@ namespace Cydin.Models
 					val = val.ToString ();
 				
 				using (SqlCommand cmd = db.CreateCommand ()) {
-					GenerateSqlCommand (cmd, "UPDATE " + map.Table + " SET Value={0} WHERE Key={1}", val, prop.Key);
+					GenerateSqlCommand (cmd, "UPDATE [" + map.Table + "] SET [Value]={0} WHERE [Key]={1}", val, prop.Key);
 					int count = cmd.ExecuteNonQuery ();
 					if (count > 0)
 						continue;
 				}
 				using (SqlCommand cmd = db.CreateCommand ()) {
 					// New property. It has to be inserted
-					GenerateSqlCommand (cmd, "INSERT INTO " + map.Table + " (Key,Value) VALUES ({0},{1})", prop.Key, val);
+					GenerateSqlCommand (cmd, "INSERT INTO [" + map.Table + "] ([Key],[Value]) VALUES ({0},{1})", prop.Key, val);
 					cmd.ExecuteNonQuery ();
 				}
 			}
@@ -249,7 +248,7 @@ namespace Cydin.Models
 			        prop.Value.SetValue(obj, null, null);
 			    else
 			    {
-			        if (prop.Value.PropertyType.Name.ToLower() == "boolean" && val is Int16)
+                    if (prop.Value.PropertyType.Name.ToLower() == "boolean" && val is Int16)
 			        {
                         prop.Value.SetValue (obj, Convert.ToBoolean(val), null);
 			        }

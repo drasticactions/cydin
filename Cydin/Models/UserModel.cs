@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,7 +18,7 @@ using OAuth2;
 #if CYDIN_ON_SQLITE
 using SqlConnection = Mono.Data.Sqlite.SqliteConnection;
 #else
-using MySql.Data.MySqlClient;
+using System.Data.SqlClient;
 #endif
 
 namespace Cydin.Models
@@ -226,7 +225,7 @@ namespace Cydin.Models
 		
 		public IEnumerable<User> GetApplicationAdministrators ()
 		{
-			return db.SelectObjects<User> ("SELECT User.* FROM User, UserApplication WHERE User.Id = UserApplication.UserId AND UserApplication.ApplicationId = {0} AND UserApplication.Permissions & {1} != 0", application.Id, (int)ApplicationPermission.Administer);
+			return db.SelectObjects<User> ("SELECT [User].* FROM [User], UserApplication WHERE [User].Id = UserApplication.UserId AND UserApplication.ApplicationId = {0} AND UserApplication.Permissions & {1} != 0", application.Id, (int)ApplicationPermission.Administer);
 		}
 		
 		public void SetUserApplicationPermission (int userId, ApplicationPermission perms, bool enable)
@@ -249,7 +248,7 @@ namespace Cydin.Models
 
 		public IEnumerable<User> GetProjectOwners (Project p)
 		{
-			return db.SelectObjects<User> ("SELECT User.* FROM User, UserProject, Project WHERE Project.Id = UserProject.ProjectId AND User.Id = UserProject.UserId AND UserProject.ProjectId = {0} AND UserProject.Permissions & {1} != 0 AND Project.ApplicationId={2}", p.Id, (int)ProjectPermission.Administer, application.Id);
+			return db.SelectObjects<User> ("SELECT [User].* FROM [User], [UserProject], [Project] WHERE Project.Id = UserProject.ProjectId AND User.Id = UserProject.UserId AND UserProject.ProjectId = {0} AND UserProject.Permissions & {1} != 0 AND Project.ApplicationId={2}", p.Id, (int)ProjectPermission.Administer, application.Id);
 		}
 		
 		public void AddProjectOwner (int projectId, int userId)
@@ -804,7 +803,7 @@ namespace Cydin.Models
 
 		public IEnumerable<Release> GetRecentReleases ()
 		{
-			return db.SelectObjects<Release> ("SELECT Release.* FROM Release, Project WHERE Release.ProjectId = Project.Id AND Project.ApplicationId = {0} AND Release.Status = {1} AND Release.DevStatus != {2} ORDER BY LastChangeTime DESC", application.Id, ReleaseStatus.Published, DevStatus.Test).Take (10);
+			return db.SelectObjects<Release> ("SELECT [Release].* FROM [Release], Project WHERE [Release].ProjectId = Project.Id AND Project.ApplicationId = {0} AND [Release].Status = {1} AND [Release].DevStatus != {2} ORDER BY LastChangeTime DESC", application.Id, ReleaseStatus.Published, DevStatus.Test).Take (10);
 		}
 
 		internal void UpdateProjectFlags (int id, ProjectFlag flags)
@@ -1181,7 +1180,7 @@ namespace Cydin.Models
 	{
 		public static SqlConnection GetConnection ()
 		{
-          SqlConnection db = null;
+			SqlConnection db = null;
 			try {
 				string conn_string = WebConfigurationManager.ConnectionStrings["CommunityAddinRepoConnectionString"].ConnectionString;
 				db = new SqlConnection (conn_string);

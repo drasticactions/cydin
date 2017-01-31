@@ -312,10 +312,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Properties\PublishProfiles\monodevelop-addins - Web Deploy.pubxml" />
     <None Include="Scripts\notifications.js" />
     <None Include="version" />
     <None Include="Scripts\stat.query.js" />
     <None Include="Scripts\plot\MIT-LICENSE.txt" />
     <None Include="Scripts\plot\copyright.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-﻿// 
+// 
 // ServiceModel.cs
 //  
 // Author:
@@ -26,7 +26,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Web.Configuration;
 using System.Text;
 using Cydin.Builder;
@@ -35,7 +34,7 @@ using System.IO;
 #if CYDIN_ON_SQLITE
 using SqlConnection = Mono.Data.Sqlite.SqliteConnection;
 #else
-using MySql.Data.MySqlClient;
+using System.Data.SqlClient;
 #endif
 
 namespace Cydin.Models
