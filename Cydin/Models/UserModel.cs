@@ -248,7 +248,7 @@ namespace Cydin.Models
 
 		public IEnumerable<User> GetProjectOwners (Project p)
 		{
-			return db.SelectObjects<User> ("SELECT [User].* FROM [User], [UserProject], [Project] WHERE Project.Id = UserProject.ProjectId AND User.Id = UserProject.UserId AND UserProject.ProjectId = {0} AND UserProject.Permissions & {1} != 0 AND Project.ApplicationId={2}", p.Id, (int)ProjectPermission.Administer, application.Id);
+			return db.SelectObjects<User> ("SELECT [User].* FROM [User], [UserProject], [Project] WHERE Project.Id = UserProject.ProjectId AND [User].Id = UserProject.UserId AND UserProject.ProjectId = {0} AND UserProject.Permissions & {1} != 0 AND Project.ApplicationId={2}", p.Id, (int)ProjectPermission.Administer, application.Id);
 		}
 		
 		public void AddProjectOwner (int projectId, int userId)
