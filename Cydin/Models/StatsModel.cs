@@ -164,7 +164,7 @@ namespace Cydin.Models
 			string sql = "SELECT sum(Downloads), RP.Platform, RE.* " +
 			 	"FROM ReleasePackage RP, [Release] RE, Project P " +
 			 	"WHERE RP.Date >= {0} AND RP.Date < {1} AND RP.ReleaseId = RE.Id AND RE.ProjectId = P.Id AND P.ApplicationId = {2} " +
-			 	"GROUP BY RP.Platform, RP.ReleaseId " +
+                 "GROUP BY RP.Platform, RP.ReleaseId, RE.Id, RE.AddinName, RE.[Version], RE.ProjectId, RE.TargetAppVersion, RE.SourceTagId, RE.Platforms, RE.[Status], RE.LastChangeTime, RE.DevStatus, RE.AddinId, RE.AddinDescription " +
 			 	"ORDER BY sum(Downloads) DESC";
 			
 			List<DownloadInfo> stats = new List<DownloadInfo> ();
@@ -255,7 +255,7 @@ namespace Cydin.Models
 
 		public DownloadStats GetTotalDownloadStats (TimePeriod period, DateTime startDate, DateTime endDate)
 		{
-			return GetDownloadStats (period, startDate, endDate, "", "1=1", null);
+			return GetDownloadStats (period, startDate, endDate, "", "1=1", 0);
 		}
 
 		public DownloadStats GetProjectDownloadStats (int projectId, TimePeriod period, DateTime startDate, DateTime endDate)
